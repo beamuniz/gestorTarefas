@@ -62,7 +62,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataAccess\Database.cs" />
+    <Compile Include="DataAccess\DatabaseContext.cs" />
     <Compile Include="DataAccess\TarefaDao.cs" />
     <Compile Include="Interfaces\ITarefaDao.cs" />
     <Compile Include="Models\Tarefa.cs" />

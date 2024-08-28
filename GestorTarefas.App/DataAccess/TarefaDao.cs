@@ -2,46 +2,51 @@
 using GestorTarefas.App.Models;
 using System;
 using System.Collections.Generic;
-using System.Data.SQLite;
+using System.Linq;
 
 namespace GestorTarefas.App.DataAccess
 {
-    public class TarefaDao : ITarefaDao
+    public class TarefaDAO : ITarefaDao
     {
+        private readonly DatabaseContext _databaseContext;
+
+        public TarefaDAO()
+        {
+            _databaseContext = new DatabaseContext();
+        }
+
         public void AdicionarTarefa(Tarefa tarefa)
         {
-            using (var connection = Database.GetConnection())
-            {
-                connection.Open();
-
-                string sql = "INSERT INTO TAREFAS (Nome, Descricao) VALUES (@Nome, @Descricao)";
-                using (var cmd = new SQLiteCommand(sql, connection))
-                {
-                    cmd.Parameters.AddWithValue("@Nome", tarefa.Nome);
-                    cmd.Parameters.AddWithValue("@Descricao", tarefa.Descricao);
-                    cmd.ExecuteNonQuery();
-                }
-            }
+            tarefa.DataCriacao = DateTime.Now;
+            _databaseContext.Tarefas.Add(tarefa);
+            _databaseContext.SaveChanges();
         }
 
-        List<Tarefa> ITarefaDao.ObterTarefas()
+        public List<Tarefa> ObterTarefas()
         {
-            throw new NotImplementedException();
+            var tarefas = _databaseContext.Tarefas.ToList();
+            return tarefas;
         }
 
-        void ITarefaDao.AtualizarTarefa(Tarefa tarefa)
+        public Tarefa ObterTarefaPorId(int id)
         {
-            throw new NotImplementedException();
+            var tarefa = _databaseContext.Tarefas.FirstOrDefault(t => t.Id == id);
+            return tarefa;
+        }
+
+        public void AtualizarTarefa(Tarefa tarefa)
+        {
+            var tarefaAtualizar = _databaseContext.Tarefas.FirstOrDefault(t => t.Id == tarefa.Id);
+            tarefaAtualizar.Nome = tarefa.Nome;
+            tarefaAtualizar.Descricao = tarefa.Descricao;
+            _databaseContext.SaveChanges();
         }
 
         public void DeletarTarefa(int id)
         {
-            throw new NotImplementedException();
-        }
-
-        Tarefa ITarefaDao.ObterTarefaPorId(int id)
-        {
-            throw new NotImplementedException();
+            var tarefaDeletar = _databaseContext.Tarefas.FirstOrDefault(t => t.Id == id);
+            _databaseContext.Tarefas.Remove(tarefaDeletar);
+            _databaseContext.SaveChanges();
         }
     }
 }
